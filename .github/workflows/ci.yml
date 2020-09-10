@@ -1,17 +1,139 @@
 name: CI
+  on:
+  push:
 
-on: [push]
+ 
+branches:
 
+ 
+- master
+
+ 
+ 
+
+ 
 jobs:
-  build: 
-# my comment
-    runs-on: windows-latest
 
-    steps:
-      - uses: actions/checkout@v1
-      - name: Run a one-line script
-        run: echo hello world!
-      - name: Run a mutli-line scripe
-        run: |
-          echo Add other actions to build
-          echo test, and deploy project
+ 
+build:
+
+ 
+ 
+
+ 
+runs-on: windows-latest
+
+ 
+ 
+
+ 
+strategy:
+
+ 
+matrix:
+
+ 
+node-version: [12.x]
+
+ 
+ 
+
+ 
+steps:
+
+ 
+- uses: actions/checkout@v1
+
+ 
+- name: Use Node.js ${{ matrix.node-version }}
+
+ 
+uses: actions/setup-node@v1
+
+ 
+with:
+
+ 
+node-version: ${{ matrix.node-version }}
+
+ 
+ 
+
+ 
+- name: yarn install
+
+ 
+run: |
+
+ 
+yarn install
+
+ 
+- name: yarn test
+
+ 
+run: |
+
+ 
+yarn test
+
+ 
+env:
+
+ 
+CI: true
+
+ 
+ 
+
+ 
+- name: yarn build
+
+ 
+run: |
+
+ 
+yarn run build --if-present
+
+ 
+ 
+
+ 
+- name: Add remote origin
+
+ 
+run: |
+
+ 
+git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+
+ 
+- name: Deploy to Heroku
+
+ 
+run: |
+
+ 
+git push heroku HEAD:master -f
+
+
+
+
+
+# name: CI
+
+# on: [push]
+
+# jobs:
+#   build: 
+
+#     runs-on: windows-latest
+
+#     steps:
+#       - uses: actions/checkout@v1
+#       - name: Run a one-line script
+#         run: echo hello world!
+#       - name: Run a mutli-line scripe
+#         run: |
+#           echo Add other actions to build
+#           echo test, and deploy project
